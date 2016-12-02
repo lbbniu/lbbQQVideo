@@ -1,0 +1,91 @@
+@charset 'utf-8';
+/* CSS reset */
+*{font-family: verdana, arial, helvetica, sans-serif;font-size: 1em;}
+html,body{width:100%;height:100%;color:#000;-webkit-user-select:none;-webkit-text-size-adjust:none;font-size:100%;}
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,label,form,fieldset,legend,input,button,textarea,p,section,blockquote,th,td,strong,a{padding:0;margin:0;}
+table{border-collapse:collapse;border-spacing:0;font-family: 'Microsoft YaHei';}
+fieldset,img{border:0;}
+a{text-decoration: none; color:#FFF;}/*姝ゅ寰呮坊鍔犻粯璁ら摼鎺ラ鑹�*/
+var,em,strong{font-style:normal;}
+address,caption,cite,code,dfn,em,strong,th,var, optgroup{font-style:inherit;font-weight:inherit;}
+del,ins{text-decoration:none;}
+li{list-style:none;}
+caption,th{text-align:left;}
+h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}
+q:before,q:after{content:'';}
+abbr,acronym{border:0;font-variant:normal;}
+sup{vertical-align:baseline;}
+sub{vertical-align:baseline;}
+legend{color:#000;}
+input,button,textarea,select,optgroup,option{font-family:inherit; font-size:inherit;font-style:inherit;font-weight:inherit;outline:none;}
+input,button,textarea,select{*font-size:100%;}
+*:link,*:visited,*:hover,*:active{-webkit-tap-highlight-color:transparent;}
+*{box-sizing: border-box;}
+.blue{color:#1480db;}
+/*top*/
+.top{
+    padding: 0 .2rem;
+    height: 0.88rem;
+    background-color: #ededf3;
+    font-size:0.26rem;
+    color:#1480db;
+    line-height: 0.88rem;
+    position: relative;
+}
+
+.top .left {
+    position: absolute;
+    left: 0.2rem;
+}
+.top .center{
+   text-align: center;
+}
+.top .right{
+    position: absolute;
+    right:0.2rem;
+    bottom: 0;
+}
+.top i{
+    font-size: 0.5rem;
+    vertical-align: middle;
+}
+
+/*bottom*/
+.bottom{
+    width:100%;
+    height: 0.99rem;
+    background-color: #333333;
+    line-height: 0.99rem;
+    font-size: 0.5rem;
+    text-align: center;
+    color: white;
+    padding: 0 0.2rem;
+    box-sizing: border-box;
+    position: fixed;
+    left:0;
+    bottom:0;
+}
+.bottom i{
+    display: inline-block;
+}
+.bottom .icon-uniE957{
+    position: absolute;
+    left: 0.2rem;
+    top: 20%;
+}
+.bgr{
+    display: inline-block;
+    width: 0.9rem;
+    height:0.9rem;
+    line-height: 0.9rem;
+    background-color:#d32f2f;
+    border-radius: 50%;
+    text-align: center;
+    margin:0 auto;
+}
+.bottom .icon-uniE92D{
+    position: absolute;
+    top: 20%;
+    right: 80%；
+}
+.lr{padding:0 14%;}

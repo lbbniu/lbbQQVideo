@@ -1,0 +1,316 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,user-scalable=0">
+    <title>APICloud</title>
+    <link rel="stylesheet" type="text/css" href="../css/base.css" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css" />
+    <script type="text/javascript">
+		var lbbAvApi = null;
+		var sign = null; 
+		var enableMicPair = true;
+		var enableSpeakerPair = true;
+		var iskejian = true;
+		var keijianIndex = 0;
+		apiready = function(){
+	    	lbbAvApi = api.require('lbbAvApi');
+	    	api.addEventListener({
+	    		name:"closeVideo"
+	    	},function(ret,err){
+	    		//api.alert({msg:ret});
+	    		if(ret.value.isDan){
+		    		api.closeFrame({name:"video_bottom"});
+		    		lbbAvApi.exitPairRoom();
+		    		lbbAvApi.hangupPair();
+		    		api.closeFrame({name:"video_top"});
+	    		}else{
+		    		api.closeFrame({name:"video_bottom"});
+		    		lbbAvApi.exitMultiRoom();
+		    		lbbAvApi.hangupPair();
+		    		api.closeFrame({name:"video_top"});
+		    		api.closeFrame({name:"kejian_frame"});
+	    		}
+	    	});
+	    	api.addEventListener({
+	    		name:"openVideo"
+	    	},function(ret,err){
+	    		//alert(ret.value.isDan);
+		    	var param = {x:0,y:ret.value.y,w:api.winWidth,h:api.winHeight-ret.value.y};
+		    	if(ret.value.isDan){
+			    	lbbAvApi.openPairVideoView(param,function(ret1,err){
+			        	//api.alert({msg:ret});
+			        	if(ret.value.isDan){
+		        			var w = api.winHeight-60;
+			        	}else{
+			        		var w = api.winHeight-api.winWidth/4-100;
+			        	}
+			        	api.openFrame({
+				            name: 'video_bottom',
+				            url: './bottom.html',
+				            bounces: false,
+				            rect: {
+				                x:0,
+				                y:w,	
+				                w: 'auto',
+				                h: 55
+				            },
+				            bgColor: '#1480db',
+				            pageParam:{isDan:ret.value.isDan}
+			        	});
+			        });
+			        lbbAvApi.invalidate();
+		    	}else{
+					lbbAvApi.openMultiVideoView(param,function(ret1,err){
+						lbbAvApi.toggleEnableCameraPair();
+						lbbAvApi.enableMicPair({enable:enableMicPair});
+						lbbAvApi.enableSpeakerPair({enable:enableSpeakerPair});
+						if(ret.value.isDan){
+		        			var w = api.winHeight-60;
+			        	}else{
+			        		var w = api.winHeight-api.winWidth/4-100;
+			        	}
+			        	//打开一个frame
+			        	api.openFrame({
+				            name: 'kejian_frame',
+				            url: './test.html',
+				            bounces: false,
+				            rect: {
+				                x:0,
+				                y:50,	
+				                w: 'auto',
+				                h: api.winHeight-api.winWidth/4-89
+				            },
+				            bgColor: '#1480db'
+			        	});
+			        	api.openFrame({
+				            name: 'video_bottom',
+				            url: './bottom.html',
+				            bounces: false,
+				            rect: {
+				                x:0,
+				                y:w,	
+				                w: 'auto',
+				                h: 55
+				            },
+				            bgColor: '#1480db',
+				            pageParam:{isDan:ret.value.isDan}
+			        	});
+					});
+		    	}
+	    	});
+	    	api.addEventListener({
+	    		name:"toggleSwitchCamera"
+	    	},function(ret,err){
+	    		lbbAvApi.toggleSwitchCamera();
+	    	});
+	    	api.addEventListener({
+	    		name:"switchVideo"
+	    	},function(ret,err){
+	    		if(!iskejian){
+	    			iskejian = true;
+		    		lbbAvApi.switchVideo({index:keijianIndex});
+		    		api.setFrameAttr({
+	    				name:"kejian_frame",
+	    				rect:{
+			                x:0,
+			                y:50,	
+			                w: 'auto',
+			                h: api.winHeight-api.winWidth/4-89
+			            }
+	    			});
+	    		}
+	    	});
+	    	api.addEventListener({
+	    		name:"enableMicPair"
+	    	},function(ret,err){
+	    		enableMicPair = !enableMicPair;
+	    		lbbAvApi.enableMicPair({enable:enableMicPair});
+	    	});
+	    
+	    	api.addEventListener({
+	    		name:"enableSpeakerPair"
+	    	},function(ret,err){
+	    		enableSpeakerPair = !enableSpeakerPair;
+	    		lbbAvApi.enableSpeakerPair({enable:enableSpeakerPair});
+	    	});
+	    	
+	    	api.addEventListener({
+	    		name:"toggleEnableCameraPair"
+	    	},function(ret,err){
+	    		lbbAvApi.toggleEnableCameraPair();
+	    	});
+	    	api.addEventListener({
+	    		name:"getList"
+	    	},function(ret,err){
+	    		lbbAvApi.getMemberList();
+	    	});
+	    }	    
+		function login(){
+			var uid = document.getElementById("uid").value;
+			if(sign){
+				danLogin(uid);
+				return;
+			}
+			api.ajax({
+			    url: 'http://app205.vliang.com/sign.php',
+			    method: 'post',
+			    timeout: 30,
+			    dataType: 'json',
+			    returnAll:false,
+			    data:{
+			        values: {uid: uid},
+			    }
+			},function(ret1,err){
+			    if (ret1) {
+			    	sign = ret1.sign;
+			        danLogin(uid);
+			    }else {
+			        api.alert({
+			            msg:('错误码：'+err.code+'；错误信息：'+err.msg+'网络状态码：'+err.statusCode)
+			        });
+			    }
+			});
+		}
+		function danLogin(uid){
+			var param = {identifier:uid,usersig:sign};
+	        lbbAvApi.startAvContextPair(param, function(ret,err){
+	        	if(ret.action == "com.tencent.avsdk.ACTION_RECV_INVITE"){//收到视频邀请
+	        		api.confirm({
+					    title: '视频',
+					    msg:"收到邀请视频通话",
+					    buttons:['接受', '拒绝']
+					},function(ret2,err){
+					    if(ret2.buttonIndex == 1){
+					        //api.alert({msg: '点击了确定'});
+					        lbbAvApi.pairInviteAccept();
+					        //
+					    }else{
+					    	lbbAvApi.pairInviteRefuse();
+					    }
+					});
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_INVITE_ACCEPTED"){//收到接受邀请
+	        		//jieshou();
+	        		openVideo(true);
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_INVITE_REFUSED"){//接受到拒绝邀请
+	        		//退出房间
+	        		lbbAvApi.exitPairRoom();
+	        		api.alert({msg:"对方拒绝邀请"});
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_ROOM_JOIN_COMPLETE"){//加入房间成功
+	        		//jieshou();
+	        		openVideo(true);
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_START_CONTEXT_COMPLETE"){//登录回调
+	        		if(ret.retcode){
+	        			api.alert({msg:"登录失败,重新点击登录，保证id唯一"});
+	        		}else{
+	        			api.alert({msg:"登录成功"});
+	        		}
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_PEER_LEAVE"){ //对方退出房间
+	        		api.closeFrame({name:"video_bottom"});
+					lbbAvApi.exitPairRoom();	
+					api.closeFrame({name:"video_top"});
+	        		api.alert({msg:"对方退出房间"});
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_ROOM_CREATE_COMPLETE"){
+	        		api.alert({msg:"邀请成功，等待接受"});
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_PEER_CAMERA_OPEN"){
+	        		//openVideo();
+	        	}else if(ret.action == "videoview_clicked"){
+	        		//api.alert({msg:ret});
+	        		if(ret.index>0){
+	        		    if(iskejian){
+	        		    	iskejian = !iskejian;
+	        		    	keijianIndex=ret.index;
+	        		    	var rect = {
+	        					x:ret.x,
+	        					y:ret.y+50,
+	        					w:ret.w,
+	        					h:ret.h
+	        				};
+	        				api.setFrameAttr({
+		        				name:"kejian_frame",
+		        				rect:rect
+	        				});
+	        				lbbAvApi.setIndex({index:keijianIndex});
+	        		    }else{
+	        		    	var rect = {
+				                x:0,
+				                y:50,	
+				                w: 'auto',
+				                h: api.winHeight-api.winWidth/4-89
+				            };
+	        		    }
+	        		}
+	        		api.toast({
+				    	msg:api.winWidth+"---"+api.winHeight+"----"+api.screenWidth+"----"+api.screenHeight,
+				   		duration:3000,
+				    	location: 'bottom'
+					});
+					
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_MULTI_ROOM_CREATE_COMPLETE"){
+	        		//api.alert({msg:"房间创建成功"});
+	        		//openVideoMulti();
+	        		openVideo(false);
+	        	}
+	        	//api.alert({msg:ret});
+	        	
+	        });
+		}
+		
+		function hujiao(){
+			var peerIdentifier = document.getElementById("tauid").value;
+			//alert(peerIdentifier);
+			var param = {peerIdentifier:peerIdentifier,isVideo:true};
+	        lbbAvApi.invitePair(param);
+		}
+		
+		function openVideo(isDan){
+			api.openFrame({
+				name:"video_top",
+				url:"./top.html",
+				bgColor:'#fff',
+				rect:{x:0,y:0,w:'auto',h:api.winHeight},
+				pageParam:{isDan:isDan}
+			});
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		function hujiaoMulti(){
+			var peerIdentifier = document.getElementById("tauidm").value;
+			//alert(peerIdentifier);
+			var param = {relationId:peerIdentifier};
+	        lbbAvApi.createMultiRoom(param);
+	        iskejian = true;
+			keijianIndex = 0;
+			lbbAvApi.setIndex({index:keijianIndex});
+		}
+		
+		function openVideoMulti(){
+			var param = {x:0,y:50,w:api.winWidth,h:api.winHeight - 50};
+			lbbAvApi.openPairVideoView(param);
+		}
+	</script>
+</head>
+<body>
+    <div id="wrap">
+        <div id="main"> 
+            <div  >
+            	自己：<input type="text" name="uid" id="uid" value="12345"><br>
+            	<input type="button" onclick="login()" value="登录" /><br><br>
+            	对方：<input type="text" name="tauid" id="tauid" value="12346"><br>
+            	<input type="button" onclick="hujiao()" value="呼叫" /><br>
+            	＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝<br>
+            	<!--多人自己：<input type="text" name="uid" id="uidm" value="12345"><br>
+            	<input type="button" onclick="loginMulti()" value="多人登录" /><br><br>-->
+            	房间号：<input type="text" name="tauid" id="tauidm" value="12346"><br>
+            	<input type="button" onclick="hujiaoMulti()" value="创建或进入房间" /><br><br>
+            </div>
+        </div>   
+    </div>
+</body>
+</html>

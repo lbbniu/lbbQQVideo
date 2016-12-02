@@ -1,0 +1,8 @@
+{
+    name:'listener',
+    class:'com.apicloud.avSdkApp.AvSdkAppDelegate'
+},
+{
+    name:'lbbQQVideo',
+    class:'com.apicloud.avSdkApi.LbbQQVideo'
+}

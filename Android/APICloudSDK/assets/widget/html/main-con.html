@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,user-scalable=0">
+    <title>APICloud</title>
+    <link rel="stylesheet" type="text/css" href="../css/base.css" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css" />
+    <script type="text/javascript">
+		var lbbQQVideo = null;
+		var sign = null; 
+		apiready = function(){
+	    	lbbQQVideo = api.require('lbbQQVideo');
+	    }	    	    
+		function login(){
+			var uid = document.getElementById("uid").value;
+			if(sign){
+				danLogin(uid);
+				return;
+			}
+			api.ajax({
+			    url: 'http://app205.vliang.com/sign182.php',
+			    method: 'post',
+			    timeout: 30,
+			    dataType: 'json',
+			    returnAll:false,
+			    data:{
+			        values: {uid: uid},
+			    }
+			},function(ret1,err){
+			    if (ret1) {
+			    	sign = ret1.sign;
+			        danLogin(uid);
+			    }else {
+			        api.alert({
+			            msg:('错误码：'+err.code+'；错误信息：'+err.msg+'网络状态码：'+err.statusCode)
+			        });
+			    }
+			});
+		}
+		function danLogin(uid){
+			var param = {identifier:uid,usersig:sign};
+	        lbbQQVideo.login(param, function(ret,err){
+	        	if(ret.action == "com.tencent.avsdk.ACTION_RECV_INVITE"){//收到视频邀请
+	        		api.confirm({
+					    title: '视频',
+					    msg:"收到邀请视频通话",
+					    buttons:['接受', '拒绝']
+					},function(ret2,err){
+					    if(ret2.buttonIndex == 1){
+					        //api.alert({msg: '点击了确定'});
+					        lbbQQVideo.pairInviteAccept();
+					        //
+					    }else{
+					    	lbbQQVideo.pairInviteRefuse();
+					    }
+					});
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_INVITE_ACCEPTED"){//收到接受邀请
+	        		//jieshou();
+	        		openVideo(true);
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_INVITE_REFUSED"){//接受到拒绝邀请
+	        		//退出房间
+	        		lbbQQVideo.exitRoom();
+	        		api.alert({msg:"对方拒绝邀请"});
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_ROOM_JOIN_COMPLETE"){//加入房间成功
+	        		//jieshou();
+	        		openVideo(true);
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_START_CONTEXT_COMPLETE"){//登录回调
+	        		if(ret.retcode){
+	        			api.alert({msg:"登录失败,重新点击登录，保证id唯一"});
+	        		}else{
+	        			api.alert({msg:"登录成功"});
+	        		}
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_PEER_LEAVE"){ //对方退出房间
+					lbbQQVideo.exitRoom();	
+					api.closeWin({name:"video_top"});
+	        		api.alert({msg:"对方退出房间"});
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_ROOM_CREATE_COMPLETE"){
+	        		api.alert({msg:"邀请成功，等待接受"});
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_PEER_CAMERA_OPEN"){
+	        		//openVideo();
+	        	}else if(ret.action == "videoview_clicked"){
+	        		//api.alert({msg:ret});
+	        		api.sendEvent({name:"videoview_clicked",extra:ret});
+	        	}else if(ret.action == "com.tencent.avsdk.ACTION_MULTI_ROOM_CREATE_COMPLETE"){
+	        		//api.alert({msg:"房间创建成功"});
+	        		//openVideoMulti();
+	        		openVideo(false);
+	        	}else if(ret.action=="timecallback"){
+	        		//api.toast({msg:ret});
+	        		//api.sendEvent({name:"timecallback",extra:ret});
+	        	}else if(ret.action=="com.tencent.avsdk.ACTION_PEER_CAMERA_OPEN"){
+	        		//api.toast({msg:ret});
+	        		api.sendEvent({name:"timecallback",extra:ret});
+	        		//api.alert({msg:ret});
+	        	}else if(ret.action=="com.tencent.avsdk.ACTION_PEER_CAMERA_CLOSE"){
+	        		//api.toast({msg:ret});
+	        		api.sendEvent({name:"timecallback",extra:ret});
+	        		//api.alert({msg:ret});
+	        	}else if(ret.action=="com.tencent.avsdk.ACTION_INVITE_CANCELED"){
+	        		//api.toast({msg:ret});
+	        		api.sendEvent({name:"timecallback",extra:ret});
+	        		api.alert({msg:ret});
+	        	}
+	        	//api.alert({msg:ret});
+	        	
+	        });
+		}		
+		function hujiao(){
+			var peerIdentifier = document.getElementById("tauid").value;
+			//alert(peerIdentifier);
+			var param = {peerIdentifier:peerIdentifier,isVideo:true};
+	        lbbQQVideo.invitePair(param);
+		}
+		
+		function openVideo(isDan){
+			api.openWin({
+				name:"video_top",
+				url:"./top-win.html",
+				bgColor:'#fff',
+				pageParam:{isDan:isDan}
+			});
+		}
+		function hujiaoMulti(){
+			var peerIdentifier = document.getElementById("tauidm").value;
+			//alert(peerIdentifier);
+			var param = {relationId:peerIdentifier};
+	        lbbQQVideo.createMultiRoom(param);
+	        iskejian = true;
+			keijianIndex = 0;
+			lbbQQVideo.setIndex({index:keijianIndex});
+		}
+		function cancelhujiao(){
+			lbbQQVideo.exitRoom();
+			lbbQQVideo.hangup();
+		}
+		function tuichu(){
+			lbbQQVideo.logout();
+		}
+	</script>
+</head>
+<body>
+    <div id="wrap">
+        <div id="main"> 
+            <div  >
+            	自己：<input type="text" name="uid" id="uid" value="12345"><br>
+            	<input type="button" onclick="login()" value="登录" /><br><br>
+            	对方：<input type="text" name="tauid" id="tauid" value="12346"><br>
+            	<input type="button" onclick="hujiao()" value="呼叫" /><br>
+            	＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝<br>
+            	<!--多人自己：<input type="text" name="uid" id="uidm" value="12345"><br>
+            	<input type="button" onclick="loginMulti()" value="多人登录" /><br><br>-->
+            	房间号：<input type="text" name="tauid" id="tauidm" value="12346"><br>
+            	<input type="button" onclick="hujiaoMulti()" value="创建或进入房间" /><br><br>
+            	<input type="button" onclick="cancelhujiao()" value="取消呼叫" /><br><br>
+            	<input type="button" onclick="tuichu()" value="退出" /><br><br>
+            </div>
+        </div>   
+    </div>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="../css/style.css"/>
+    <link rel="stylesheet" href="../css/css.css"/>
+    <script src="../js/font.js"></script>
+    <script type="text/javascript" src="../script/api.js"></script>
+</head>
+<body>
+<div class="bottom">
+        <i class="icon-uniE957 blue" onclick="fenableMicPair()" id="enableMicPair"></i>
+        <i class="icon-uniE968 lr blue" onclick="ftoggleEnableCameraPair()" id="toggleEnableCameraPair"></i>
+        <span class="bgr"><i class="icon-phone-hang-up" onclick="colseWin()"></i></span>
+        <i class="icon-uniE938 lr blue" onclick="fenableSpeakerPair()" id="enableSpeakerPair"></i>
+        <i class="icon-uniE92D"  onclick="getList()"></i>
+</div>
+<script type="text/javascript">
+	var lbbQQVideo = null;
+    apiready = function(){
+    	lbbQQVideo = api.require('lbbQQVideo');
+    }
+    function colseWin(){
+    	lbbQQVideo.exitRoom();
+		lbbQQVideo.hangup();
+		api.closeWin();
+    }
+    var enableMicPair = true;
+    function fenableMicPair(){//是否禁用话筒
+    	enableMicPair = !enableMicPair;
+    	lbbQQVideo.enableMic({enable:enableMicPair});
+    	var header = $api.byId('enableMicPair');
+    	$api.toggleCls(header, 'blue');
+    	//api.toast({msg:'enableMicPair'});
+    }
+    var enableSpeakerPair = true;
+    function fenableSpeakerPair(){//是否静音
+    	enableSpeakerPair = !enableSpeakerPair;
+    	lbbQQVideo.enableSpeaker({enable:enableSpeakerPair});
+    	var header = $api.byId('enableSpeakerPair');
+    	$api.toggleCls(header, 'blue');
+    	//api.toast({msg:'enableSpeakerPair'});
+    }
+    var color = true;
+    function ftoggleEnableCameraPair(){//摄像头
+    	lbbQQVideo.toggleEnableCamera();
+    	var header = $api.byId('toggleEnableCameraPair');
+    	$api.toggleCls(header, 'blue');
+    	//api.alert({msg:'toggleEnableCameraPair'});
+    }
+    function getList(){
+    	lbbQQVideo.getMemberList(function(ret,err){
+    		api.alert({msg:ret});
+    	});
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<widget id="A6965220651799"  version="0.0.1">
+    <name>APICloud</name>
+    <description>
+        a sample APICloud app.
+    </description>
+    <author email="developer@apicloud.com" href="http://www.apicloud.com">
+        developer
+    </author>
+    <preference name="debug" value="true"/>
+    <content src="index.html" />
+    <access origin="*" />
+    <preference name="bounces" value="true" />
+    <feature name="lbbQQVideo">
+        <param name="appId" value="1400019562"/>
+        <param name="accountType" value="1806"/>
+  	</feature>
+</widget>

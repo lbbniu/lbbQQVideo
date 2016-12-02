@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="../css/style.css"/>
+    <link rel="stylesheet" href="../css/css.css"/>
+    <script src="../js/font.js"></script>
+    <script type="text/javascript" src="../script/api.js"></script>
+</head>
+<body>
+<div class="top" id="header">
+    <div class="left">
+        <i class="icon-arrow-left3" onclick="closeVideo()"></i>
+        00:29
+    </div>
+    <div class="center">
+        <i class="icon-uniE969" onclick="toggleSwitchCamera()" id="toggleSwitchCamera"></i>
+    </div>
+    <div class="right">
+        <i class="icon-uniE975"></i>
+    </div>
+</div>
+<script type="text/javascript">
+	var lbbQQVideo = null;
+	var iskejian = true;
+	var keijianIndex = 0;
+    apiready = function(){
+    	var header = $api.byId('header');
+    	var offset = $api.offset(header);
+    	lbbQQVideo = api.require('lbbQQVideo');
+    	var param = {x:0,y:offset.t + offset.h,w:api.winWidth,h:api.winHeight-offset.t - offset.h};
+    	if(api.pageParam.isDan){
+	    	lbbQQVideo.openPairVideoView(param,function(ret1,err){
+	        	//api.alert({msg:ret});
+        		var w = api.winHeight-60;
+	        	api.openFrame({
+		            name: 'video_bottom',
+		            url: './bottom-test.html',
+		            bounces: false,
+		            rect: {
+		                x:0,
+		                y:w,	
+		                w: 'auto',
+		                h: 55
+		            },
+		            bgColor: '#1480db'
+	        	});
+	        });
+	        lbbQQVideo.invalidate();
+    	}else{
+			lbbQQVideo.openMultiVideoView(param,function(ret1,err){
+				lbbQQVideo.toggleEnableCamera();
+				lbbQQVideo.enableMic({enable:true});
+				lbbQQVideo.enableSpeaker({enable:true});
+	        	var w = api.winHeight-api.winWidth/4-100;
+	        	//打开一个frame
+	        	api.openFrame({
+		            name: 'kejian_frame',
+		            url: './photo-banner.html',
+		            bounces: false,
+		            rect: {
+		                x:0,
+		                y:offset.t + offset.h,	
+		                w: 'auto',
+		                h: api.winHeight-api.winWidth/4-89
+		            },
+		            bgColor: '#1480db'
+	        	});
+	        	api.openFrame({
+		            name: 'video_bottom',
+		            url: './bottom-test.html',
+		            bounces: false,
+		            rect: {
+		                x:0,
+		                y:w,	
+		                w: 'auto',
+		                h: 55
+		            },
+		            bgColor: '#1480db'
+	        	});
+			});
+    	}
+    	
+    	api.addEventListener({
+    		name:"switchVideo"
+    	},function(ret,err){
+    		if(!iskejian){
+    			iskejian = true;
+	    		lbbQQVideo.switchVideo({index:keijianIndex});
+	    		api.setFrameAttr({
+    				name:"kejian_frame",
+    				rect:{
+		                x:0,
+		                y:offset.t + offset.h,	
+		                w: 'auto',
+		                h: api.winHeight-api.winWidth/4-89
+		            }
+    			});
+    		}
+		});
+    	api.addEventListener({
+    		name:"videoview_clicked"
+    	},function(ret,err){
+    		if(ret.value.index>0){
+    		    if(iskejian){
+    		    	iskejian = !iskejian;
+    		    	keijianIndex=ret.value.index;
+    		    	var rect = {
+    					x:ret.value.x,
+    					y:ret.value.y+offset.t + offset.h,
+    					w:ret.value.w,
+    					h:ret.value.h
+    				};
+    				api.setFrameAttr({
+        				name:"kejian_frame",
+        				rect:rect
+    				});
+    				lbbQQVideo.setIndex({index:keijianIndex});
+    		    }
+    		}
+    		api.toast({
+		    	msg:api.winWidth+"---"+api.winHeight+"----"+api.screenWidth+"----"+api.screenHeight+"=="+ret.value.index+"=="+ret.value.x+"=="+ret.value.y+"=="+ret.value.w+"=="+ret.value.h,
+		   		duration:3000,
+		    	location: 'bottom'
+			});
+		});
+		api.addEventListener({
+    		name:"timecallback"
+    	},function(ret,err){
+    		api.toast({
+		    	msg:JSON.stringify(ret),
+		   		duration:3000,
+		    	location: 'bottom'
+			});
+		});
+    	
+    }
+    var color = true;
+    function toggleSwitchCamera(){
+    	lbbQQVideo.toggleSwitchCamera();
+    	var header = $api.byId('toggleSwitchCamera');
+    	if(color){
+    		$api.css(header,"color:black");
+    	}else{
+    		$api.css(header,"color:#1480db");
+    	}
+    	color = !color;
+    }
+    function closeVideo(){
+    	lbbQQVideo.exitRoom();
+		lbbQQVideo.hangup();
+		api.closeWin()
+    }
+</script>
+</body>
+</html>

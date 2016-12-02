@@ -1,0 +1,32 @@
+{
+	modules:[
+		{
+		    name:'moduleDemo',
+		    class:'com.apicloud.moduleDemo.APIModuleDemo'
+		},
+		{
+		    name:'scrollPicture',
+		    class:'com.apicloud.moduleDemo.ModuleScrollPicture'
+		},
+		{
+		    name:'listener',
+		    class:'com.apicloud.avSdkApp.AvSdkAppDelegate'
+		},
+		{
+		    name:'avSdkApi',
+		    class:'com.apicloud.avSdkApi.AvSdkApi'
+		},
+		{
+		    name:'avSdkMultiApi',
+		    class:'com.apicloud.avSdkApi.AvSdkMultiApi'
+		},
+		{
+		    name:'lbbAvApi',
+		    class:'com.apicloud.avSdkApi.LbbAvApi'
+		},
+		{
+		    name:'lbbQQVideo',
+		    class:'com.apicloud.avSdkApi.LbbQQVideo'
+		}
+	]
+}

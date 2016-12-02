@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="../css/style.css"/>
+    <link rel="stylesheet" href="../css/css.css"/>
+    <script src="../js/font.js"></script>
+</head>
+<body>
+<div class="bottom">
+        <i class="icon-uniE957 blue" onclick="enableMicPair()"></i>
+        <i class="icon-uniE968 lr" onclick="toggleEnableCameraPair()"></i>
+        <span class="bgr"><i class="icon-phone-hang-up" onclick="colseWin()"></i></span>
+        <i class="icon-uniE938 lr" onclick="enableSpeakerPair()"></i>
+        <i class="icon-uniE92D"  onclick="getList()"></i>
+</div>
+<script type="text/javascript">
+    function colseWin(){
+    	//alert(1);
+    	api.sendEvent({name:"closeVideo",extra:{isDan:api.pageParam.isDan}});
+    }
+    function enableMicPair(){//是否禁用话筒
+    	//alert(2);
+    	api.sendEvent({name:"enableMicPair",extra:{isDan:api.pageParam.isDan}});
+    }
+    function enableSpeakerPair(){//是否静音
+    	//alert(3);
+    	api.sendEvent({name:"enableSpeakerPair",extra:{isDan:api.pageParam.isDan}});
+    }
+    function toggleEnableCameraPair(){//摄像头
+    	//alert(4);
+    	api.sendEvent({name:"toggleEnableCameraPair",extra:{isDan:api.pageParam.isDan}});
+    }
+    function getList(){
+    	api.sendEvent({name:"getList"});
+    }
+</script>
+</body>
+</html>
